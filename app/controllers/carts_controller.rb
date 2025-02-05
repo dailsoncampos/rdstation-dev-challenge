@@ -9,9 +9,8 @@ class CartsController < ApplicationController
 
     cart_item = @cart.cart_items.find_or_initialize_by(product: product)
 
-    # Check if it's a new record, if so initialize quantity
     if cart_item.new_record?
-      cart_item.quantity = 0 # Initialize quantity for new cart items
+      cart_item.quantity = 0
     end
 
     cart_item.quantity += quantity
@@ -67,13 +66,6 @@ class CartsController < ApplicationController
       end,
       total_price: @cart.total_price
     }
-    response[:updated_item] = {
-        id: updated_item&.product&.id,
-        name: updated_item&.product&.name,
-        quantity: updated_item&.quantity,
-        price: updated_item&.product&.price,
-        total_price: updated_item&.total_price
-    } if updated_item
     response
   end
 end

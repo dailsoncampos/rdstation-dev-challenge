@@ -4,6 +4,7 @@ class Cart < ApplicationRecord
   validates :total_price, numericality: { greater_than_or_equal_to: 0 }
 
   before_save :update_total_price
+  before_save :update_last_interaction_at
 
   def total_price
     cart_items.sum(&:total_price)
@@ -21,5 +22,9 @@ class Cart < ApplicationRecord
 
   def update_total_price
     self.total_price = total_price
+  end
+
+  def update_last_interaction_at
+    self.last_interaction_at = Time.current
   end
 end

@@ -5,6 +5,6 @@ class CartItem < ApplicationRecord
   validates :quantity, presence: true, numericality: { only_integer: true, greater_than: 0 }
 
   def total_price
-    (quantity * product.price)
+    quantity * product.price
   end
 end

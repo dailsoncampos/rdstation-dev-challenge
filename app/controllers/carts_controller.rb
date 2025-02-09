@@ -2,21 +2,15 @@ class CartsController < ApplicationController
   before_action :set_cart, only: [:add_product, :show, :update_item, :remove_product]
 
   def add_product
-    product = Product.find(params[:product_id])
-    quantity = params[:quantity].to_i
+    product = Product.find_by(id: params[:product_id])
+    return render json: { error: "Produto não encontrado" }, status: :not_found unless product
 
+    quantity = params[:quantity].to_i
     return render json: { error: "Quantidade inválida" }, status: :unprocessable_entity if quantity <= 0
 
-    cart_item = @cart.cart_items.find_or_initialize_by(product: product)
+    cart_item = @cart.add_product(product, quantity)
 
-    if cart_item.new_record?
-      cart_item.quantity = 0
-    end
-
-    cart_item.quantity += quantity
-    cart_item.save!
-
-    render json: cart_response(cart_item), status: :ok
+    render json: cart_response, status: :ok
   end
 
   def show
@@ -49,23 +43,22 @@ class CartsController < ApplicationController
 
   def set_cart
     @cart = Cart.find_by(id: session[:cart_id]) || Cart.create
-    session[:cart_id] ||= @cart.id
-  end
+    session[:cart_id] = @cart.id unless session[:cart_id]
+  end  
 
-  def cart_response(updated_item = nil)
-    response = {
+  def cart_response
+    {
       id: @cart.id,
       products: @cart.cart_items.map do |item|
         {
           id: item.product.id,
           name: item.product.name,
           quantity: item.quantity,
-          price: item.product.price,
+          unit_price: item.product.price,
           total_price: item.total_price
         }
       end,
       total_price: @cart.total_price
     }
-    response
   end
 end
